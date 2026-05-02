@@ -34,4 +34,5 @@ export interface HabitStore {
   deleteHabit: (id: string) => void;
   toggleCompletion: (id: string, date: string) => void;
   setIsPremium: (value: boolean) => void;
+  mergeHabits: (remoteHabits: Habit[]) => void;
 }

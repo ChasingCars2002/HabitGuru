@@ -76,6 +76,34 @@ export const useHabitStore = create<HabitStore>()(
       },
 
       setIsPremium: (value) => set({ isPremium: value }),
+
+      mergeHabits: (remoteHabits) => {
+        set((state) => {
+          const localMap = new Map(state.habits.map((h) => [h.id, h]));
+          const merged: Habit[] = [...state.habits];
+
+          for (const remote of remoteHabits) {
+            const local = localMap.get(remote.id);
+            if (!local) {
+              merged.push(remote);
+            } else {
+              const idx = merged.findIndex((h) => h.id === remote.id);
+              merged[idx] = {
+                ...remote,
+                ...local, // local editable props win
+                completions: {
+                  ...remote.completions,
+                  ...local.completions, // local same-day data wins
+                },
+                streak: Math.max(local.streak, remote.streak),
+                longestStreak: Math.max(local.longestStreak, remote.longestStreak),
+              };
+            }
+          }
+
+          return { habits: merged };
+        });
+      },
     }),
     {
       name: 'habit-guru-storage',

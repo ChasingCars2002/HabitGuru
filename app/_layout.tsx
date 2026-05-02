@@ -6,8 +6,14 @@ import { useColorScheme } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Colors } from '@/constants';
+import { useFirebaseSync } from '@/hooks/useFirebaseSync';
 
 SplashScreen.preventAutoHideAsync();
+
+function FirebaseSyncBoot() {
+  useFirebaseSync();
+  return null;
+}
 
 export default function RootLayout() {
   const scheme = useColorScheme();
@@ -20,6 +26,8 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      {/* Boot Firebase auth + sync without blocking the render tree */}
+      <FirebaseSyncBoot />
       <Stack
         screenOptions={{
           headerShown: false,
@@ -38,6 +46,14 @@ export default function RootLayout() {
         />
         <Stack.Screen
           name="(modals)/habit-detail"
+          options={{
+            presentation: 'modal',
+            animation: 'slide_from_bottom',
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="(modals)/auth"
           options={{
             presentation: 'modal',
             animation: 'slide_from_bottom',
