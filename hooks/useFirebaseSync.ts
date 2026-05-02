@@ -1,14 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import {
-  fetchHabits,
-  fetchProfile,
-  uploadHabits,
-  uploadSingleHabit,
-  deleteRemoteHabit,
-  updateProfile,
-} from '@/lib/firestore';
+import { fetchHabits, fetchProfile, uploadHabits } from '@/lib/firestore';
 import { signInAnon } from '@/lib/auth';
 import { useHabitStore } from '@/store/habitStore';
 import { useAuthStore } from '@/store/authStore';

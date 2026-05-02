@@ -12,6 +12,7 @@ import { router } from 'expo-router';
 import { Colors } from '@/constants';
 import { useHabitStore } from '@/store';
 import { StatCard } from '@/components/ui/StatCard';
+import { AdBanner } from '@/components/ui/AdBanner';
 import { WeeklyGrid } from '@/components/habit/WeeklyGrid';
 
 export default function StatsScreen() {
@@ -183,19 +184,8 @@ export default function StatsScreen() {
           </View>
         )}
 
-        {/* ─── AdMob Banner Placeholder (Phase 4) ─── */}
-        {!isPremium && (
-          <View
-            style={[
-              styles.adPlaceholder,
-              { backgroundColor: colors.elevated, borderColor: colors.border },
-            ]}
-          >
-            <Text style={[styles.adLabel, { color: colors.textMuted }]}>
-              Ad Banner · Phase 4
-            </Text>
-          </View>
-        )}
+        {/* ─── AdMob Banner (hidden for Premium users) ─── */}
+        <AdBanner hidden={isPremium} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -252,15 +242,4 @@ const styles = StyleSheet.create({
   emptyEmoji: { fontSize: 40 },
   emptyTitle: { fontSize: 18, fontWeight: '700', marginTop: 16, textAlign: 'center' },
   emptySub: { fontSize: 14, marginTop: 8, textAlign: 'center' },
-  adPlaceholder: {
-    marginHorizontal: 24,
-    marginTop: 24,
-    height: 52,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderStyle: 'dashed',
-  },
-  adLabel: { fontSize: 12 },
 });

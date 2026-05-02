@@ -7,11 +7,30 @@ import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Colors } from '@/constants';
 import { useFirebaseSync } from '@/hooks/useFirebaseSync';
+import { initializeAds } from '@/lib/ads';
+import { initializePurchases, identifyUser } from '@/lib/purchases';
+import { useAuthStore } from '@/store/authStore';
 
 SplashScreen.preventAutoHideAsync();
 
-function FirebaseSyncBoot() {
+// Boots all async services without blocking the render tree
+function ServicesBoot() {
   useFirebaseSync();
+
+  const user = useAuthStore((s) => s.user);
+
+  useEffect(() => {
+    initializeAds();
+    initializePurchases();
+  }, []);
+
+  // Identify the RevenueCat user whenever Firebase auth resolves
+  useEffect(() => {
+    if (user?.uid) {
+      identifyUser(user.uid);
+    }
+  }, [user?.uid]);
+
   return null;
 }
 
@@ -26,8 +45,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-      {/* Boot Firebase auth + sync without blocking the render tree */}
-      <FirebaseSyncBoot />
+      <ServicesBoot />
       <Stack
         screenOptions={{
           headerShown: false,
@@ -38,27 +56,19 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="(modals)/add-habit"
-          options={{
-            presentation: 'modal',
-            animation: 'slide_from_bottom',
-            headerShown: false,
-          }}
+          options={{ presentation: 'modal', animation: 'slide_from_bottom', headerShown: false }}
         />
         <Stack.Screen
           name="(modals)/habit-detail"
-          options={{
-            presentation: 'modal',
-            animation: 'slide_from_bottom',
-            headerShown: false,
-          }}
+          options={{ presentation: 'modal', animation: 'slide_from_bottom', headerShown: false }}
         />
         <Stack.Screen
           name="(modals)/auth"
-          options={{
-            presentation: 'modal',
-            animation: 'slide_from_bottom',
-            headerShown: false,
-          }}
+          options={{ presentation: 'modal', animation: 'slide_from_bottom', headerShown: false }}
+        />
+        <Stack.Screen
+          name="(modals)/paywall"
+          options={{ presentation: 'modal', animation: 'slide_from_bottom', headerShown: false }}
         />
       </Stack>
     </GestureHandlerRootView>

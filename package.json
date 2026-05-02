@@ -34,7 +34,9 @@
     "@expo/vector-icons": "^14.0.0",
     "date-fns": "^3.6.0",
     "uuid": "^10.0.0",
-    "firebase": "^10.14.0"
+    "firebase": "^10.14.0",
+    "react-native-google-mobile-ads": "^14.0.0",
+    "react-native-purchases": "^8.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",

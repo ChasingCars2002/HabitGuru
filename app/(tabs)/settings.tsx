@@ -150,8 +150,7 @@ export default function SettingsScreen() {
   const displayName = user?.displayName ?? null;
 
   function handleUpgrade() {
-    // Phase 4: opens RevenueCat paywall
-    Alert.alert('Guru Pro', 'Paywall coming in Phase 4!');
+    router.push('/(modals)/paywall');
   }
 
   async function handleSignOut() {

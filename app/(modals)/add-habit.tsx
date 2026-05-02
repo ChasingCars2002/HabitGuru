@@ -65,14 +65,7 @@ export default function AddHabitModal() {
       return;
     }
     if (atLimit) {
-      Alert.alert(
-        'Habit limit reached',
-        `Free tier allows up to ${FREE_HABIT_LIMIT} habits. Upgrade to Guru Pro for unlimited habits.`,
-        [
-          { text: 'Maybe later', style: 'cancel' },
-          { text: 'Upgrade', onPress: () => router.back() },
-        ]
-      );
+      router.replace('/(modals)/paywall');
       return;
     }
 
@@ -146,26 +139,29 @@ export default function AddHabitModal() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Free-tier warning */}
+          {/* Free-tier warning → taps into Paywall */}
           {atLimit && (
-            <View
+            <TouchableOpacity
+              onPress={() => router.replace('/(modals)/paywall')}
+              activeOpacity={0.85}
               style={{
-                backgroundColor: `${colors.accent}15`,
+                backgroundColor: `${colors.primary}15`,
                 borderRadius: 14,
                 padding: 14,
                 marginBottom: 20,
                 borderWidth: 1,
-                borderColor: `${colors.accent}40`,
+                borderColor: `${colors.primary}40`,
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 10,
               }}
             >
-              <Ionicons name="lock-closed" size={18} color={colors.accent} />
-              <Text style={{ flex: 1, fontSize: 13, color: colors.accent, fontWeight: '500' }}>
-                You've reached the {FREE_HABIT_LIMIT}-habit free limit. Upgrade to Guru Pro for unlimited habits.
+              <Text style={{ fontSize: 18 }}>✨</Text>
+              <Text style={{ flex: 1, fontSize: 13, color: colors.primary, fontWeight: '600' }}>
+                You've used all {FREE_HABIT_LIMIT} free habits. Upgrade to Guru Pro for unlimited.
               </Text>
-            </View>
+              <Ionicons name="arrow-forward" size={16} color={colors.primary} />
+            </TouchableOpacity>
           )}
 
           {/* Icon + Name row */}

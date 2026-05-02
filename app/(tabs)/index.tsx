@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -19,7 +19,8 @@ import * as Haptics from 'expo-haptics';
 import { format } from 'date-fns';
 import { Colors, FREE_HABIT_LIMIT } from '@/constants';
 import { useHabitStore } from '@/store';
-import { useHabitsForToday } from '@/hooks';
+import { useHabitsForToday } from '@/hooks/useHabitsForToday';
+import { useInterstitialAd } from '@/hooks/useInterstitialAd';
 import { ProgressRing } from '@/components/ui/ProgressRing';
 import { CelebrationBanner } from '@/components/ui/CelebrationBanner';
 import { HabitCard } from '@/components/habit/HabitCard';
@@ -31,9 +32,24 @@ export default function HomeScreen() {
   const { isPremium } = useHabitStore();
   const { todayHabits, completed, pending, completionRate, todayKey } =
     useHabitsForToday();
+  const { showIfReady: showInterstitial } = useInterstitialAd();
 
   const today = new Date();
   const allDone = todayHabits.length > 0 && completed.length === todayHabits.length;
+  const prevAllDoneRef = useRef(false);
+
+  // Show interstitial ad when user first completes all habits (free tier only)
+  useEffect(() => {
+    if (allDone && !prevAllDoneRef.current && !isPremium) {
+      // Small delay so the celebration banner plays first
+      const timer = setTimeout(() => showInterstitial(), 1200);
+      prevAllDoneRef.current = true;
+      return () => clearTimeout(timer);
+    }
+    if (!allDone) {
+      prevAllDoneRef.current = false;
+    }
+  }, [allDone, isPremium]);
 
   // FAB press animation
   const fabScale = useSharedValue(1);
@@ -46,7 +62,12 @@ export default function HomeScreen() {
       fabScale.value = withSpring(1, { damping: 12, stiffness: 300 });
     });
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push('/(modals)/add-habit');
+
+    if (atLimit) {
+      router.push('/(modals)/paywall');
+    } else {
+      router.push('/(modals)/add-habit');
+    }
   }
 
   const greeting = (() => {
@@ -81,7 +102,10 @@ export default function HomeScreen() {
             <TouchableOpacity
               onPress={handleAddPress}
               activeOpacity={1}
-              style={[styles.fab, { backgroundColor: atLimit ? colors.elevated : colors.primary }]}
+              style={[
+                styles.fab,
+                { backgroundColor: atLimit ? colors.elevated : colors.primary },
+              ]}
             >
               <Ionicons
                 name={atLimit ? 'lock-closed' : 'add'}
@@ -126,18 +150,24 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* ─── Free-tier limit notice ─── */}
+        {/* ─── Free-tier limit notice → opens Paywall ─── */}
         {atLimit && (
           <TouchableOpacity
-            onPress={() => router.push('/(tabs)/settings')}
+            onPress={() => router.push('/(modals)/paywall')}
             activeOpacity={0.85}
-            style={[styles.limitBadge, { backgroundColor: `${colors.accent}15`, borderColor: `${colors.accent}40` }]}
+            style={[
+              styles.limitBadge,
+              {
+                backgroundColor: `${colors.primary}15`,
+                borderColor: `${colors.primary}40`,
+              },
+            ]}
           >
-            <Ionicons name="lock-closed-outline" size={14} color={colors.accent} />
-            <Text style={[styles.limitText, { color: colors.accent }]}>
-              Free limit reached · Upgrade for unlimited habits
+            <Text style={{ fontSize: 16 }}>✨</Text>
+            <Text style={[styles.limitText, { color: colors.primary }]}>
+              Upgrade to Guru Pro for unlimited habits
             </Text>
-            <Ionicons name="arrow-forward" size={14} color={colors.accent} />
+            <Ionicons name="arrow-forward" size={14} color={colors.primary} />
           </TouchableOpacity>
         )}
 
@@ -157,11 +187,9 @@ export default function HomeScreen() {
             />
           ) : (
             <>
-              {/* Pending first */}
               {pending.map((habit) => (
                 <HabitCard key={habit.id} habit={habit} todayKey={todayKey} />
               ))}
-              {/* Completed at bottom */}
               {completed.length > 0 && (
                 <>
                   {pending.length > 0 && (
@@ -233,7 +261,7 @@ const styles = StyleSheet.create({
     gap: 8,
     borderWidth: 1,
   },
-  limitText: { flex: 1, fontSize: 13, fontWeight: '500' },
+  limitText: { flex: 1, fontSize: 13, fontWeight: '600' },
   listSection: { marginTop: 28, paddingHorizontal: 24 },
   sectionTitle: { fontSize: 18, fontWeight: '700', marginBottom: 14 },
   completedDivider: {

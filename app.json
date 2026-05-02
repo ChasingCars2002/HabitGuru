@@ -40,6 +40,13 @@
           "image": "./assets/images/splash.png",
           "resizeMode": "contain"
         }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-xxxxxxxxxxxxxxxx~xxxxxxxxxx",
+          "iosAppId": "ca-app-pub-xxxxxxxxxxxxxxxx~xxxxxxxxxx"
+        }
       ]
     ],
     "experiments": {
